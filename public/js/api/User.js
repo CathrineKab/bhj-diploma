@@ -3,13 +3,21 @@
  * регистрацией пользователя из приложения
  * Имеет свойство URL, равное '/user'.
  * */
-class User {
+  class User {
+  static URL = '/user'
+
+  static STORAGE_KEY = 'user'
+    
   /**
    * Устанавливает текущего пользователя в
    * локальном хранилище.
    * */
   static setCurrent(user) {
-    localStorage.setItem('user', JSON.stringify(user));
+    if (!user) {
+      return;
+    }
+
+    localStorage.setItem(User.STORAGE_KEY, JSON.stringify(user));
   }
 
 
@@ -18,7 +26,7 @@ class User {
    * пользователе из локального хранилища.
    * */
   static unsetCurrent() {
-  localStorage.removeItem('user');
+  localStorage.removeItem(User.STORAGE_KEY)
   }
 
   /**
@@ -26,7 +34,11 @@ class User {
    * из локального хранилища
    * */
   static current() {
-return JSON.parse(localStorage.getItem('user'));
+   try {
+      return JSON.parse(localStorage.getItem(User.STORAGE_KEY));
+    } catch (error) {
+      return null;
+    }
   }
 
   /**
@@ -35,18 +47,12 @@ return JSON.parse(localStorage.getItem('user'));
    * */
   static fetch(callback) {
  createRequest({
-      url: this.url + '/current',
+      url: `${User.URL}/current`,
       method: 'GET',
-      callback: (err, response) => {
-        if (response && response.user) {
-          this.setCurrent(response.user);
-        } else {
-          this.unsetCurrent();
-        }
-
-        callback(err, response);
-      },
-    });
+      callback(err, response) {
+        User.onUserDataFetch(err, response, callback);
+      }
+    })
   }
 
   /**
@@ -56,16 +62,12 @@ return JSON.parse(localStorage.getItem('user'));
    * User.setCurrent.
    * */
   static login(data, callback) {
-    createRequest({
+     createRequest({
       url: this.URL + '/login',
       method: 'POST',
-      responseType: 'json',
       data,
-      callback: (err, response) => {
-        if (response && response.user) {
-          this.setCurrent(response.user);
-        }
-        callback(err, response);
+      callback(err, response) {
+        User.onUserDataFetch(err, response, callback);
       }
     });
   }
@@ -78,34 +80,36 @@ return JSON.parse(localStorage.getItem('user'));
    * */
   static register(data, callback) {
 createRequest({
-      url: this.url + '/register',
+      url: `${User.URL}/register`,
       method: 'POST',
       data,
-      callback: (err, response) => {
-        if (response && response.user) {
-          this.setCurrent(response.user);
-        }
-        callback(err, response);
-      },
+      callback,
     });
   }
-
+    
   /**
    * Производит выход из приложения. После успешного
    * выхода необходимо вызвать метод User.unsetCurrent
    * */
   static logout(callback) {
   createRequest({
-      url: this.url + '/logout',
+      url: `${User.URL}/logout`,
       method: 'POST',
-      callback: (err, response) => {
+      callback(err, response) {
         if (response && response.success) {
-          this.unsetCurrent();
+          User.unsetCurrent();
         }
+
         callback(err, response);
       }
     });
   }
 
-  static url = '/user';
+ static onUserDataFetch(err, response, callback) {
+    if (response && response.user) {
+      User.setCurrent(response.user);
+    }
+
+    callback(err, response);
+  }
 }
