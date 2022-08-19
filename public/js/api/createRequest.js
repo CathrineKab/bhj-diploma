@@ -1,39 +1,91 @@
+const JSON_RESPONSE_TYPE = 'json';
+
+const GET_METHOD = 'GET';
+
+const isGetMethod = (method) => method.toUpperCase() === GET_METHOD;
+
+const buildQueryString = (data = {}) => Object
+.entries(data)
+.reduce((queryStringParams, [key, val]) => { 
+     queryStringParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(val)}`);
+     return queryStringParams;
+ }, [])
+ .join('&');
+
+const buildFormData = (data = {}) => {
+    if (!data) {
+        return new FormData();
+    }
+
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, val]) => {
+        formData.append(key, val);
+    });
+
+    return formData;
+};
+
+const getRequestDataByMethod = (method, data) => {
+    if (isGetMethod(method)) {
+        return {
+            queryString: buildQueryString(data),
+            formData: null,
+        };
+    }
+
+    return {
+        queryString: '',
+        formData: buildFormData(data),
+    }
+};
+
+const isCorrectCallback = (callback) => callback && typeof callback === 'function';
+
 /**
  * Основная функция для совершения запросов
  * на сервер.
  * */
 const createRequest = (options = {}) => {
+    const { url, method, data, callback, responseType } = options;
+
+    if (!options.url) {
+        throw new Error('Не указан url запроса');
+    }
+
+    if (!options.method) {
+        throw new Error('Не указан метод запроса');
+    }
+
+    const { queryString, formData } = getRequestDataByMethod(method, data);
+
+    const reuestUrl = `${url}${queryString.length > 0 ? '?' + queryString : ''}`;
+
     const xhr = new XMLHttpRequest();
-    const formData = new FormData();
+    xhr.responseType = responseType ?? JSON_RESPONSE_TYPE;
 
-    xhr.responseType = 'json';
-
-    if (options.method === 'GET') {
-        options.url += '?';
-
-        for (let i in options.data) {
-            options.url += `${i}=${options.data[i]}&`;
+    xhr.onload = function () {
+        if (!isCorrectCallback(callback)) {
+            return;
         }
-    } else {
-        for (let i in options.data) {
-            formData.append(i, options.data[i]);
+
+        try {
+            if (xhr.status === 200) {
+                callback(null, xhr.response);
+            } else {
+                callback(new Error(`${xhr.status}: ${xhr.statusText}`));
+            }
+        } catch (error) {
+            callback(new Error(error));
         }
+    };
+
+    xhr.open(method, reuestUrl);
+
+    if (isGetMethod(method)) {
+        xhr.send();
+        return;
     }
 
-    try {
-        xhr.open(options.method, options.url);
-        if (options.method === 'GET') {
-            xhr.send();
-        } else xhr.send(formData);
-    } catch (error) {
-        options.callback(error);
-    }
-
-    xhr.onreadystatechange = () => {
-        let err = null;
-
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            options.callback(err, xhr.response);
-        } else err = new Error('Что-то пошло не так...');
-    } 
-}
+    xhr.send(formData);
+};
