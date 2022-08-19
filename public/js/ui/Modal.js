@@ -13,7 +13,7 @@ class Modal {
    * */
   constructor(element){
 if (!element) {
-      throw new Error('Элемент не найден!');
+      throw new Error('Не передан элемент!');
     }
 
     this.element = element;
@@ -50,6 +50,7 @@ et modal = this.element.querySelectorAll('button[data-dismiss="modal"]');
   open() {
 this.element.style.display = 'block';
   }
+  
   /**
    * Закрывает окно: удаляет CSS-свойство display
    * */
