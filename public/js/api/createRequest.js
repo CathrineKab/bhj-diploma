@@ -1,38 +1,38 @@
-const JSON_RESPONSE_TYPE = 'json';
+const createRequest = (options = {}) => {
+	const xhr = new XMLHttpRequest();
+	const formData = new FormData();
 
-const GET_METHOD = 'GET';
+	xhr.responseType = 'json';
 
-const isGetMethod = (method) => method.toUpperCase() === GET_METHOD;
+	if (options.method === 'GET') {
+		options.url += '?';
 
-const buildQueryString = (data = {}) => Object
-.entries(data)
-.reduce((queryStringParams, [key, val]) => { 
-     queryStringParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(val)}`);
-     return queryStringParams;
- }, [])
- .join('&');
+		for (let i in options.data) {
+			options.url += `${i}=${options.data[i]}&`;
+		}
+	} else {
+		for (let i in options.data) {
+			formData.append(i, options.data[i]);
+		}
+	}
 
-const buildFormData = (data = {}) => {
-    if (!data) {
-        return new FormData();
-    }
+	try {
+		xhr.open(options.method, options.url);
+		if (options.method === 'GET') {
+			xhr.send();
+		} else xhr.send(formData);
+	} catch (error) {
+		options.callback(error);
+	}
 
-    const formData = new FormData();
+	xhr.onreadystatechange = () => {
+		let err = null;
 
-    Object.entries(data).forEach(([key, val]) => {
-        formData.append(key, val);
-    });
-
-    return formData;
-};
-
-const getRequestDataByMethod = (method, data) => {
-    if (isGetMethod(method)) {
-        return {
-            queryString: buildQueryString(data),
-            formData: null,
-        };
-    }
+		if (xhr.readyState === 4 && xhr.status === 200) {
+			options.callback(err, xhr.response);
+		} else err = new Error('Что-то пошло не так...');
+	} 
+}
 
     return {
         queryString: '',
