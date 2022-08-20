@@ -193,5 +193,4 @@ const content = this.element.querySelector('.content');
       content.innerHTML += this.getTransactionHTML(i);
     }
   }
-  }
-}
+ }
