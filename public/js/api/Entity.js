@@ -46,4 +46,3 @@ static remove(data, callback ) {
       callback,
     });
   }
-}
