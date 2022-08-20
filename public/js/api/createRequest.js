@@ -47,13 +47,13 @@ const isCorrectCallback = (callback) => callback && typeof callback === 'functio
  * на сервер.
  * */
 const createRequest = (options = {}) => {
-    const { url, method, data, callback, responseType } = options;
+    const { url, method, data, callback, responseType } = option;
 
-    if (!options.url) {
+    if (!option.url) {
         throw new Error('Не указан url запроса');
     }
 
-    if (!options.method) {
+    if (!option.method) {
         throw new Error('Не указан метод запроса');
     }
 
