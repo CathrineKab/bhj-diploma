@@ -26,7 +26,7 @@ if (!element) {
    * (с помощью метода Modal.onClose)
    * */
   registerEvents() {
-et modal = this.element.querySelectorAll('button[data-dismiss="modal"]');
+let modal = this.element.querySelectorAll('button[data-dismiss="modal"]');
 
     for (let i of modal) {
       i.addEventListener('click', (e) => {
