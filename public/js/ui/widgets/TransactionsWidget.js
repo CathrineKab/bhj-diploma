@@ -11,10 +11,10 @@ class TransactionsWidget {
    * Если переданный элемент не существует,
    * необходимо выкинуть ошибку.
    * */
-  constructor( element ) {
-if (!element) {
-      throw new Error('Элемент не найден!');
-    }
+constructor(element) {
+  if (!element) {
+    throw new Error('Элемент не найден!');
+   }
 
     this.element = element;
     this.registerEvents();
@@ -25,13 +25,13 @@ if (!element) {
    * При нажатии вызывает Modal.open() для
    * экземпляра окна
    * */
-  registerEvents() {
-document.querySelector('.create-income-button').addEventListener('click', () => {
-      App.getModal('newIncome').open();
-    });
+registerEvents() {
+  document.querySelector('.create-income-button').addEventListener('click', () => {
+    App.getModal('newIncome').open();
+     });
 
-    document.querySelector('.create-expense-button').addEventListener('click', () => {
-      App.getModal('newExpense').open();
+  document.querySelector('.create-expense-button').addEventListener('click', () => {
+    App.getModal('newExpense').open();
     });
   }
 }
