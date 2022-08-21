@@ -12,7 +12,7 @@ class Modal {
    * необходимо выкинуть ошибку.
    * */
   constructor(element){
-if (!element) {
+    if (!element) {
       throw new Error('Не передан элемент!');
     }
 
@@ -26,7 +26,7 @@ if (!element) {
    * (с помощью метода Modal.onClose)
    * */
   registerEvents() {
-let modal = this.element.querySelectorAll('button[data-dismiss="modal"]');
+    let modal = this.element.querySelectorAll('button[data-dismiss="modal"]');
 
     for (let i of modal) {
       i.addEventListener('click', (e) => {
@@ -48,13 +48,13 @@ let modal = this.element.querySelectorAll('button[data-dismiss="modal"]');
    * со значением «block»
    * */
   open() {
-this.element.style.display = 'block';
+    this.element.style.display = 'block';
   }
   
   /**
    * Закрывает окно: удаляет CSS-свойство display
    * */
   close(){
- this.element.style.display = 'none';
+    this.element.style.display = 'none';
   }
 }
