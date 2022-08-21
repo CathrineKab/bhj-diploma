@@ -21,19 +21,17 @@ class CreateTransactionForm extends AsyncForm {
   renderAccountsList() {
     if (!this.accountsList) {
       return;
-    }
+     }
 
     Account.list({}, (err, res) => {
       if (err) {
         throw new Error(err);
-      }
-
+       }
       if (!res.success || res.data.length === 0) {
         return;
-      }
+       }
 
       const accountsSelect = res.data.reduce((prev, item) => prev + this.getAccountHtml(item), '');
-
       this.accountsList.innerHTML = accountsSelect;
     });
 
