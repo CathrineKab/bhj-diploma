@@ -58,7 +58,6 @@ class AccountsWidget {
     Account.list(User.current(), (err, response) => {
       if (response && response.data) {
         this.clear();
-
         for (let i of response.data) {
           this.renderItem(i);
         }
@@ -105,7 +104,7 @@ class AccountsWidget {
                 <span>${item.sum}</span>
               </a>
             </li>`;
-  }
+   }
 
   /**
    * Получает массив с информацией о счетах.
