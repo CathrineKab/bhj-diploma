@@ -32,7 +32,7 @@ class Sidebar {
    * выходу устанавливает App.setState( 'init' )
    * */
   static initAuthLinks() {
-document.querySelector('.menu-item_register').addEventListener('click', () => {
+    document.querySelector('.menu-item_register').addEventListener('click', () => {
       App.getModal('register').open();
     });
 
