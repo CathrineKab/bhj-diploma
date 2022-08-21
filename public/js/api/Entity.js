@@ -10,29 +10,28 @@ class Entity {
    * Это могут быть счета или доходы/расходы
    * (в зависимости от того, что наследуется от Entity)
    * */
- static list(data, callback){
-    createRequest({
+ static list(data, callback) {
+    createRequest ({
       url: this.URL,
       method: 'GET',
       data,
       callback,
     });
   }
+  
   /**
    * Создаёт счёт или доход/расход с помощью запроса
    * на сервер. (в зависимости от того,
    * что наследуется от Entity)
    * */
    static create(data, callback) {
-    createRequest({
-      url: this.URL,
-      method: 'PUT',
-      data,
-      callback,
+     createRequest({
+       url: this.URL,
+       method: 'PUT',
+       data,
+       callback,
     });
   }
-}
-
 
   /**
    * Удаляет информацию о счёте или доходе/расходе
@@ -47,3 +46,4 @@ static remove(data, callback ) {
       callback,
     });
   }
+}
