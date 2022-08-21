@@ -37,9 +37,7 @@ constructor(element) {
      if (e.target.closest('.remove-account')) {
        this.removeAccount();
       } else if (e.target.closest('.transaction__remove')) {
-        this.removeTransaction(
-          e.target.closest('.transaction__remove').dataset.id
-        );
+        this.removeTransaction(e.target.closest('.transaction__remove').dataset.id);
       }
     });
   }
@@ -59,9 +57,7 @@ constructor(element) {
    }
 
    if (confirm('Вы уверены, что хотите удалить счёт, включая транзакции? После подтверждения восстановление будет невозможным.')) {
-      Account.remove(
-        { id: this.lastOptions.account_id },
-        (err, response) => {
+      Account.remove({ id: this.lastOptions.account_id }, (err, response) => {
           if (response && response.success) {
             App.update();
           }
@@ -77,7 +73,7 @@ constructor(element) {
    * По удалению транзакции вызовите метод App.update(),
    * либо обновляйте текущую страницу (метод update) и виджет со счетами
    * */
-removeTransaction( id ) {
+removeTransaction(id) {
   if (confirm('Вы уверены, что хотите удалить выбранную транзакцию?')) {
     Transaction.remove({ id }, (err, response) => {
       if (response && response.success) {
@@ -174,22 +170,19 @@ render(options){
       </button>
     </div>
   </div>`;
-}
+ }
 
   /**
    * Отрисовывает список транзакций на странице
    * используя getTransactionHTML
    * */
-renderTransactions(data) {
-  if (data.length === 0) {
-    this.content.innerHTML = '';
-    return;
-   }
-
-  const content = data.reduce((prev, item) => prev + this.getTransactionHTML(item), '');
-
-    this.content.innerHTML = content;
-
-    this.initRemoveTransactionButtons();
+ renderTransactions(data) {
+   if (data.length === 0) {
+     this.content.innerHTML = '';
+     return;
+    }
+   const content = data.reduce((prev, item) => prev + this.getTransactionHTML(item), '');
+   this.content.innerHTML = content;
+   this.initRemoveTransactionButtons();
   }
 }
