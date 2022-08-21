@@ -62,12 +62,8 @@ class AccountsWidget {
         for (let i of response.data) {
           this.renderItem(i);
         }
-      }
+       }
     });
-
-    if (!User.current()) {
-      return;
-    }
   }
 
   /**
