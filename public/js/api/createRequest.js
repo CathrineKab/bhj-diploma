@@ -1,40 +1,91 @@
+const JSON_RESPONSE_TYPE = 'json';
+
+const GET_METHOD = 'GET';
+
+const isGetMethod = (method) => method.toUpperCase() === GET_METHOD;
+
+const buildQueryString = (data = {}) => Object
+.entries(data)
+.reduce((queryStringParams, [key, val]) => { 
+     queryStringParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(val)}`);
+     return queryStringParams;
+ }, [])
+ .join('&');
+
+const buildFormData = (data = {}) => {
+    if (!data) {
+        return new FormData();
+    }
+
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, val]) => {
+        formData.append(key, val);
+    });
+
+    return formData;
+};
+
+const getRequestDataByMethod = (method, data) => {
+    if (isGetMethod(method)) {
+        return {
+            queryString: buildQueryString(data),
+            formData: null,
+        };
+    }
+
+    return {
+        queryString: '',
+        formData: buildFormData(data),
+    }
+};
+
+const isCorrectCallback = (callback) => callback && typeof callback === 'function';
+
 /**
  * Основная функция для совершения запросов
  * на сервер.
  * */
+const createRequest = (options = {}) => {
+    const { url, method, data, callback, responseType } = option;
 
- const createRequest = (options = {}) => {
-	const xhr = new XMLHttpRequest();
-	const formData = new FormData();
+    if (!option.url) {
+        return console.log ('Не указан url запроса');
+    }
 
-	xhr.responseType = 'json';
+    if (!option.method) {
+        return console.log ('Не указан метод запроса');
+    }
 
-	if (options.method === 'GET') {
-		options.url += '?';
+    const { queryString, formData } = getRequestDataByMethod(method, data);
 
-		for (let i in options.data) {
-			options.url += `${i}=${options.data[i]}&`;
-		}
-	} else {
-		for (let i in options.data) {
-			formData.append(i, options.data[i]);
-		}
-	}
+    const reuestUrl = `${url}${queryString.length > 0 ? '?' + queryString : ''}`;
 
-	try {
-		xhr.open(options.method, options.url);
-		if (options.method === 'GET') {
-			xhr.send();
-		} else xhr.send(formData);
-	} catch (error) {
-		options.callback(error);
-	}
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = responseType ?? JSON_RESPONSE_TYPE;
 
-	xhr.onreadystatechange = () => {
-		let err = null;
+    xhr.onload = function () {
+        if (!isCorrectCallback(callback)) {
+            return;
+        }
 
-		if (xhr.readyState === 4 && xhr.status === 200) {
-			options.callback(err, xhr.response);
-		} else err = new Error('Что-то пошло не так...');
-	} 
-}
+        try {
+            if (xhr.status === 200) {
+                callback(null, xhr.response);
+            } else {
+                callback(new Error(`${xhr.status}: ${xhr.statusText}`));
+            }
+        } catch (error) {
+            callback(new Error(error));
+        }
+    };
+
+    xhr.open(method, reuestUrl);
+
+    if (isGetMethod(method)) {
+        xhr.send();
+        return;
+    }
+
+    xhr.send(formData);
+};
