@@ -180,13 +180,16 @@ render(options){
    * Отрисовывает список транзакций на странице
    * используя getTransactionHTML
    * */
-renderTransactions(data){
-  const content = this.element.querySelector('.content');
+renderTransactions(data) {
+  if (data.length === 0) {
+    this.content.innerHTML = '';
+    return;
+   }
 
-    content.innerHTML = '';
+  const content = data.reduce((prev, item) => prev + this.getTransactionHTML(item), '');
 
-    for (let i of data) {
-      content.innerHTML += this.getTransactionHTML(i);
-    }
+    this.content.innerHTML = content;
+
+    this.initRemoveTransactionButtons();
   }
 }
