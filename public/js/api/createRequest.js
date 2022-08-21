@@ -47,45 +47,33 @@ const isCorrectCallback = (callback) => callback && typeof callback === 'functio
  * на сервер.
  * */
 const createRequest = (options = {}) => {
-    const { url, method, data, callback, responseType } = option;
-
+  const { url, method, data, callback, responseType } = option;
     if (!option.url) {
-        return console.log ('Не указан url запроса');
-    }
-
+      return console.log ('Не указан url запроса');
+      }
     if (!option.method) {
-        return console.log ('Не указан метод запроса');
-    }
+      return console.log ('Не указан метод запроса');
+     }
+     
+  const { queryString, formData } = getRequestDataByMethod(method, data);
 
-    const { queryString, formData } = getRequestDataByMethod(method, data);
+  const reuestUrl = `${url}${queryString.length > 0 ? '?' + queryString : ''}`;
 
-    const reuestUrl = `${url}${queryString.length > 0 ? '?' + queryString : ''}`;
+  const xhr = new XMLHttpRequest();
+     
+  xhr.responseType = responseType ?? JSON_RESPONSE_TYPE;
 
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = responseType ?? JSON_RESPONSE_TYPE;
-
-    xhr.onload = function () {
-        if (!isCorrectCallback(callback)) {
-            return;
-        }
-
-        try {
-            if (xhr.status === 200) {
-                callback(null, xhr.response);
-            } else {
-                callback(new Error(`${xhr.status}: ${xhr.statusText}`));
-            }
-        } catch (error) {
-            callback(new Error(error));
-        }
-    };
-
-    xhr.open(method, reuestUrl);
-
-    if (isGetMethod(method)) {
-        xhr.send();
-        return;
-    }
-
-    xhr.send(formData);
+  xhr.onload = function () {
+    options.callback(null, xhr.response);
+   };
+  xhr.onerror = function () {
+    options.callback(xhr.response, null);
+   };
+  xhr.open(method, reuestUrl);
+    
+  if (isGetMethod(method)) {
+    xhr.send();
+    return;
+   }
+ xhr.send(formData);
 };
