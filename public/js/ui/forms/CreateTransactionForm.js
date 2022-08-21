@@ -9,6 +9,8 @@ class CreateTransactionForm extends AsyncForm {
    * */
   constructor(element) {
     super(element);
+    this.parent = element.closest('.modal');
+    this.accountsList = this.element.querySelector('[name="account_id"]');
     this.renderAccountsList();
   }
 
@@ -17,22 +19,23 @@ class CreateTransactionForm extends AsyncForm {
    * Обновляет в форме всплывающего окна выпадающий список
    * */
   renderAccountsList() {
-const accountsSelect = this.element.querySelector('.accounts-select');
-
-    Account.list(User.current(), (err, response) => {
-      if (response && response.data) {
-        accountsSelect.innerHTML = '';
-        
-        response.data.forEach((e) => {
-          addItemToTheList(e);
-        });
-      } else console.log(`Ошибка ${err}`);
-    });
-
-    function addItemToTheList(item) {
-      accountsSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+    if (!this.accountsList) {
+      return;
     }
-  }
+
+    Account.list({}, (err, res) => {
+      if (err) {
+        throw new Error(err);
+      }
+
+      if (!res.success || res.data.length === 0) {
+        return;
+      }
+
+      const accountsSelect = res.data.reduce((prev, item) => prev + this.getAccountHtml(item), '');
+
+      this.accountsList.innerHTML = accountsSelect;
+    });
 
   /**
    * Создаёт новую транзакцию (доход или расход)
@@ -41,7 +44,7 @@ const accountsSelect = this.element.querySelector('.accounts-select');
    * в котором находится форма
    * */
   onSubmit(data) {
- Transaction.create(data, (err, response) => {
+   Transaction.create(data, (err, response) => {
       if (response && response.success) {
         App.update();
         this.element.reset();
